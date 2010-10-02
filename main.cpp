@@ -1,18 +1,17 @@
 #include <iostream>
 #include <string>
 #include "strmath.cpp"
+#include "knowledge.cpp"
 
 using namespace std;
 
 int main()
 {
-    Tokenizer token;
-    token.feed("The quick brown fox .. jumped over the lazy dog.");
-    token.add_break(" .");
-    token.tokenize();
-    for (int i = 0; i < token.num_words; i++)
-    {
-        cout << low_string(up_string(token.word[i])) << endl;
-    }
+    ANIMAL *bill = new HUMAN("bill");
+    OBJECT *obj1 = new GENERIC_OBJECT();
+    obj1->set_name("Flowers");
+    obj1->set_desc("A simple lifeform often used as decoration.");
+    bill->Display();
+    delete obj1, bill;
 }
 

@@ -43,8 +43,8 @@ inline void forkdaemon()
    setsid();							// Run process in new session
 }
 
-#define USERNAME "NICOLE_AI"
-#define PASSWORD "veritech3"
+#define USERNAME "GriffinAI"
+#define PASSWORD "GriffinAI"
 
 class IRC_INTERFACE
 {
@@ -64,108 +64,147 @@ class IRC_INTERFACE
 	string realname;		// Real name
 	string privateme;		// Buffer for catching private messages ":<nick> !"
   public:
-        void write_message()
-        {
+    
+    void out_str(string & s)
+    {
+        //cout << s.c_str() << endl;
+
+        memset(&(writebuf[0]), 0, MAX_MESSAGE_SIZE);
+	    int len = s.copy(writebuf, MAX_MESSAGE_SIZE - 1);
+	    writebuf[len] = 0;
+	    cout << "OUT: " << writebuf << endl;
+        written = write(servsockd, writebuf, strlen(writebuf));
+	    if (written == -1) bail("write()");
+    }
+
+    void write_message()
+    {
 	  cout << "OUT: " << writebuf << endl;
 	  written = write(servsockd, writebuf, strlen(writebuf));
 	  if (written == -1) bail("write()");
 	}
-	void loginpass(void)	// Register IRC session by sending PASS
+	
+    void loginpass(void)	// Register IRC session by sending PASS
 	{
 	  password = "PASS " + password + "\r\n";
-	  memset(&writebuf, 0, sizeof writebuf);
-	  password.copy(writebuf, sizeof writebuf);
-	  write_message();
+	  //memset(&writebuf, 0, sizeof writebuf);
+	  //password.copy(writebuf, sizeof writebuf);
+	  out_str(password);
 	}
-	void setuser(void)		// Set IRC user
+	
+    void setuser(void)		// Set IRC user
 	{
-	  realname = "USER NICOLE_AI 0 0 :nicole_ai\r\n";
-	  memset(&writebuf, 0, sizeof writebuf);
-	  realname.copy(writebuf, sizeof writebuf);
-	  write_message();
+	  realname = "USER NICOLEAI 0 0 :NICOLEAI\r\n";
+	  out_str(realname);
+	  //memset(&writebuf, 0, sizeof writebuf);
+	  //realname.copy(writebuf, sizeof writebuf);
+	  //write_message();
 	}
-	void joinchannel()	// Join channel on IRC server
+	
+    void joinchannel()	// Join channel on IRC server
 	{
 	  string jmsg = "JOIN #drift\r\n";
-	  memset(&writebuf, 0, sizeof writebuf);
-	  jmsg.copy(writebuf, sizeof writebuf);
-	  write_message();
+	  out_str(jmsg);
+	  //memset(&writebuf, 0, sizeof writebuf);
+	  //jmsg.copy(writebuf, sizeof writebuf);
+	  //write_message();
 	}
-	void quit()			// Send quit to server
+	
+    void quit()			// Send quit to server
 	{
-	  string qmsg = "QUIT : NICOLE_AI shutting down\r\n";
-	  memset(&writebuf, 0, sizeof writebuf);
-	  qmsg.copy(writebuf, sizeof writebuf);
-	  write_message();
+	  string qmsg = "QUIT : NICOLEAI shutting down\r\n";
+	  out_str(qmsg);
+	  //memset(&writebuf, 0, sizeof writebuf);
+	  //qmsg.copy(writebuf, sizeof writebuf);
+	  //write_message();
 	}
-	void set_nick(void)
+	
+    void set_nick(void)
 	{
-	  nick = "NICK nicole_ai\r\n";
-	  memset(&writebuf, 0, sizeof writebuf);
-	  nick.copy(writebuf, sizeof writebuf);
-	  write_message();
+	  nick = "NICK NICOLEAI\r\n";
+	  out_str(nick);
+	  //memset(&writebuf, 0, sizeof writebuf);
+	  //nick.copy(writebuf, sizeof writebuf);
+	  //write_message();
 	}
-	void sendpong(string dat)
+	
+    void sendpong(string dat)
 	{
 	  string pong = "PONG " + dat + "\r\n";
-	  memset(&writebuf, 0, sizeof writebuf);
-	  pong.copy(writebuf, sizeof writebuf);
-	  write_message();
+	  out_str(pong);
+	  //memset(&writebuf, 0, sizeof writebuf);
+	  //pong.copy(writebuf, sizeof writebuf);
+	  //write_message();
 	}
-	string myself()
+	
+    string& myself()
 	{
 	  return privateme;
 	}
-	void privmsg(string msg)
+	
+    void privmsg(string msg)
 	{
 	  msg = "PRIVMSG #" + channel + " :" + msg + "\r\n";
-	  memset(&writebuf, 0, sizeof writebuf);
-	  msg.copy(writebuf, sizeof writebuf);
-	  write_message();
+	  out_str(msg);
+	  //memset(&writebuf, 0, sizeof writebuf);
+	  //msg.copy(writebuf, sizeof writebuf);
+	  //write_message();
 	}
-	string read_msg()
+
+    string * read_msg(unsigned int out)
 	{
-	  memset(&readbuf, 0, sizeof readbuf);
-	  bytesread = read(servsockd, readbuf, sizeof readbuf-1);
+      unsigned int * tmp = &out;
+      cout << "r1 [" << tmp[0] << ", " << tmp[-1] << ", " << tmp[-2] << "]" << endl;
+	  memset(&(readbuf[0]), 0, MAX_MESSAGE_SIZE);
+	  bytesread = read(servsockd, readbuf, MAX_MESSAGE_SIZE - 1);
 	  if (bytesread == -1) bail("read()");
-	  string retmsg = readbuf;
-	  return retmsg;
+	  string * retval = new string(readbuf);
+	  //cout << readbuf;
+      cout << "r1 [" << tmp[0] << ", " << tmp[-1] << ", " << tmp[-2] << "]" << endl;
+      return retval;
 	}
-	void connectirc(void)	// Create connection and connect it 
+	
+    void connectirc(void)	// Create connection and connect it
 	{
 	  int success = 0;
 	  servaddr.sin_family = AF_INET;
 	  servaddr.sin_addr.s_addr = inet_addr(servIP.c_str());
 	  servaddr.sin_port = htons(servport);
-	  
+
 	  servsockd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	  if (servsockd == -1) bail("socket()");
-	  
+
 	  success = connect(servsockd, (const sockaddr *)&servaddr, sizeof servaddr);
 	  if (success == -1) bail("connect()");
 	  
-	  setuser();
+	  //setuser();
 	  
 	  //set_nick();
 	  //joinchannel();
 	  //privmsg("Joining in...");
 	}
-	void disconnirc(void)
+
+    void disconnirc(void)
 	{
 	  quit();
 	  close(servsockd);
 	}
-	IRC_INTERFACE()
+	
+    IRC_INTERFACE()
 	{
-	  nick = realname = "NICOLE_AI";
-	  privateme = " :NICOLE_AI !";
-	  password = "NICOLE_AI";
+	  nick = realname = "NICOLEAI";
+	  privateme = " :NICOLEAI !";
+	  password = "NICOLEAI";
 	  servport = 6667;
-	  servIP = "209.251.184.237";
+	  servIP = "91.205.185.104";
+	  //servIP = "82.71.44.155";
 	  channel = "drift";
 	  connectirc();
+	  readbuf[0] = 0;
+	  writebuf[0] = 0;
 	}
-	~IRC_INTERFACE()
+	
+    ~IRC_INTERFACE()
 	{
 	  disconnirc();
 	  exit(0);
