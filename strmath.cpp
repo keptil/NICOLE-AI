@@ -182,27 +182,6 @@ inline double str_double(string s)
     return val;
 }
 
-//A printf() style of string creation
-//DOES NOT WORK YET, DO NOT USE
-inline string var_str(char *s, ...)
-{
-    char str[1024];
-    cout << "proc vars...\n";
-    va_list ap;
-    va_start(ap, s);
-    vsprintf(str, s, ap);
-    va_end(ap);
-    cout << "convert to string...\n";
-    string tmp = "";
-    for (int i = 0; i < strlen(str); i++)
-    {
-        tmp += str[i];
-    }
-    return tmp;
-}
-
-
-
 class Tokenizer
 {
 public:
@@ -254,7 +233,7 @@ public:
             // excess data
             cout << "excess data!" << endl;
         }
-        cout << num_words << " words parsed.\n";
+        //cout << num_words << " words parsed.\n";
     }
     void feed(string& s)
     {
