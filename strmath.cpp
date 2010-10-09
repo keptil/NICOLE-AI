@@ -25,41 +25,24 @@ const int ints_array[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 const string lowalpha = "abcdefghijklmnopqrstuvwxyz"; 
 const string upalpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-inline int alpha(char c)
-{
-    for (int i = 0; i < 26; i++)
-    {
-        if (lowalpha[i] == c)
-        {
-            return i;
-        }
-        if (upalpha[i] == c)
-        {
-            i+26;
-        }
-     }
-     return -1;
+//a=0 ~~~ z=25; A=26 ~~~ Z=51; anything else=-1
+inline int alpha(char c){
+    if( c>='a' && c<='z' )
+        return c-'a';
+    if( c>='A' && c<='Z' )
+        return c-'A'+26;
+    return -1;
 }
 
-inline char to_upper(char c)
-{
-    if (alpha(c) < 26 && alpha(c) != -1)
-    {
-        c = upalpha[alpha(c)];
-    }
+inline char to_upper(char c){
+    if( c>='a' && c<='z' )
+        return c-32;  //same as c-'a'+'A'
     return c;
 }
 
-inline char to_lower(char c)
-{
-    for (int i = 0; i < 26; i++)
-    {
-        if (upalpha[i] == c)
-        {
-            c = lowalpha[i];
-            break;
-        }
-    }
+inline char to_lower(char c){
+    if( c>='A' && c<='Z' )
+        return c+32;  //same as c-'A'+'a'
     return c;
 }
 
@@ -88,28 +71,16 @@ inline string beg_string(string s)
 }
 
 //Test to see if a char is an integer
-inline int is_int(char ch)
-{
-    for (int i = 0; i < 10; i++)
-    {
-        if (ints[i] == ch)
-        {
-            return 1;
-        }
-    }
+inline int is_int(char ch){
+    if( ch>='0' && ch<='9' )
+        return 1;
     return 0;
 }
 
 //Return the integer value of a char
-inline int ch_int(char ch)
-{
-    for (int i = 0; i < 10; i++)
-    {
-        if (ints[i] == ch)
-        {
-            return ints_array[i];
-        }
-    }
+inline int ch_int(char ch){
+    if( ch>='0' && ch<='9' )
+        return ch-'0';
     return -1;
 }
 
@@ -134,10 +105,9 @@ inline int str_int(string s)
         break;
       }
     }
-    if (isneg)
-    {
-        val *= -1;
-    }
+    
+    val *= isneg*(-2) + 1;
+
     return val;
 }
 
@@ -177,8 +147,9 @@ inline double str_double(string s)
             }
         }
     }
-    if (isneg)
-        val *= -1;
+
+    val *= isneg*(-2) + 1;
+
     return val;
 }
 
